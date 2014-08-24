@@ -47,8 +47,8 @@ public class Test {
 		registro += ",";
 		registro += ec.getPerimRatio();
 		registro += ",";
-		//registro += ec.getCircularidad();
-		//registro += ",";
+		registro += ec.getNarrowFactor();
+		registro += ",";
 		registro += "Desconocida";
 		
 		System.out.println(">>" + registro);

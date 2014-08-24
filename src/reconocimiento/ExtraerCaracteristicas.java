@@ -21,11 +21,15 @@ import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.cpp.opencv_core.CvBox2D;
 import com.googlecode.javacv.cpp.opencv_core.CvFont;
+import com.googlecode.javacv.cpp.opencv_core.CvMat;
+import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint3D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
 //non-static imports
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
+import com.googlecode.javacv.cpp.opencv_core.CvSeq;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class ExtraerCaracteristicas {
@@ -140,6 +144,61 @@ public class ExtraerCaracteristicas {
         cvCircle(imageSrc, center, (int) radio[0], CvScalar.YELLOW, 2, CV_AA, 0);
 		
 		imagen.setContour(contourMax);
+		
+
+		
+		//Encuentro un convex hull de la hoja
+        CvPoint pointArray = new CvPoint(contourMax.total()); 
+        cvCvtSeqToArray(contourMax, pointArray, CV_WHOLE_SEQ); 
+        CvMat pointMatrix = cvMat(1, contourMax.total(), CV_32SC2, pointArray); 
+        CvMat hullMatrix = cvCreateMat(1, contourMax.total(), CV_32SC1); 
+        cvConvexHull2(contourMax, hullMatrix, CV_COUNTER_CLOCKWISE, 0); 
+        CvSeq defects = cvConvexityDefects(contourMax, hullMatrix, storage); 
+
+        if (hullMatrix!=null && !hullMatrix.isNull()) { 
+            int hullCount = hullMatrix.cols(); 
+            CvPoint pt = pointArray.position((int) hullMatrix.get(hullCount-1)); 
+            CvPoint pt0 = new CvPoint(pt.x(), pt.y()); 
+            for (int j=0; j<hullCount; j++) { 
+                pt = pointArray.position((int) hullMatrix.get(j)); 
+                cvLine(imageSrc, pt0, pt, CvScalar.CYAN, 3, CV_AA, 0); 
+                pt0 = new CvPoint(pt.x(), pt.y()); 
+            } 
+        } 
+        
+        //Calcular segmento máximo dentro del convexhull 
+        //TODO usar Rotating Calipers y testear colisiones de los segmentos contra los defectos del convexhull
+        double maxDistance = 0;
+        CvPoint diam0 = null;
+        CvPoint diam1 = null;
+        if (hullMatrix!=null && !hullMatrix.isNull()) { 
+            int hullCount = hullMatrix.cols(); 
+            CvPoint pt = pointArray.position((int) hullMatrix.get(hullCount-1)); 
+            CvPoint pt0 = new CvPoint(pt.x(), pt.y()); 
+            CvPoint pt1 = pointArray.position((int) hullMatrix.get(hullCount-1)); 
+            
+            for (int j = 0; j < hullCount; j++) { 
+                pt = pointArray.position((int) hullMatrix.get(j)); 
+                cvLine(imageSrc, pt0, pt, CvScalar.CYAN, 3, CV_AA, 0); 
+                pt0 = new CvPoint(pt.x(), pt.y()); 
+                for (int k = 0; k < hullCount; k++) { 
+                	pt1 = pointArray.position((int) hullMatrix.get(k)); 
+                	//Calculo la distancia entre pt y pt1
+                	double xDiff = Math.abs(pt0.x() - pt1.x());
+            		double yDiff = Math.abs(pt0.y() - pt1.y());
+            		double distance = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+            		//System.out.println(distance);
+            		if(maxDistance < distance ){
+            			maxDistance = distance;
+            			diam0 = new CvPoint(pt0.x(), pt0.y());
+            			diam1 = new CvPoint(pt1.x(), pt1.y());
+            		}
+                	
+                }
+            }
+            cvLine(imageSrc, diam0, diam1, CvScalar.BLACK, 3, CV_AA, 0); 
+        }
+        
 
 		// Caracteristicas Principales
 		double altoMaximo = imagen
@@ -153,9 +212,7 @@ public class ExtraerCaracteristicas {
 		double areaBboxMinimo = imagen
 				.extraerCaracteristica(new AreaBboxMinimoStrategy());
 		double areaMinCirculo = imagen.extraerCaracteristica(new AreaMinCirculoStrategy());
-		double diametro = imagen.extraerCaracteristica(new DiametroStrategy());// TODO
-																				// encontrar
-																				// diametros
+		double diametro = imagen.extraerCaracteristica(new DiametroStrategy());
 
 		// Caracteristicas computadas
 		smoothFactor = 0.0;// TODO ver como calcular esta caracteristica
@@ -185,6 +242,8 @@ public class ExtraerCaracteristicas {
         cvPutText (imageSrc, "Ratio Perimetro: "+ perimRatio, cvPoint(10,180), font, CvScalar.BLACK);
         cvPutText (imageSrc, "Factor Forma: "+ factorForma, cvPoint(10,200), font, CvScalar.BLACK);
         cvPutText (imageSrc, "Circularidad: "+ circularidad, cvPoint(10,220), font, CvScalar.BLACK);
+        cvPutText (imageSrc, "Diametro: "+ diametro, cvPoint(10,240), font, CvScalar.BLACK);
+        cvPutText (imageSrc, "Narrow Factor: "+ narrowFactor, cvPoint(10,260), font, CvScalar.BLACK);
 		
 		// System.out.println("ALTO MAXIMO: " + altoMaximo);
 		// System.out.println("ANCHO MAXIMO: " + anchoMaximo);

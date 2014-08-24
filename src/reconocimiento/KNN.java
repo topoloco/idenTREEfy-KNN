@@ -56,7 +56,7 @@ public class KNN {
     public static String getEspecie()throws Exception {
 
         /* Load a data set */
-        Dataset data = FileHandler.loadDataset(new File("resources/hojas-dataset.txt"), 4, ",");
+        Dataset data = FileHandler.loadDataset(new File("resources/hojas-dataset.txt"), 5, ",");
         /*
          * Contruct a KNN classifier that uses 5 neighbors to make a decision.
          */
@@ -68,7 +68,7 @@ public class KNN {
          * will use the same one.
          */
         String especie = null;
-        Dataset dataForClassification = FileHandler.loadDataset(new File("resources/hoja-analizada.txt"), 4, ",");
+        Dataset dataForClassification = FileHandler.loadDataset(new File("resources/hoja-analizada.txt"), 5, ",");
         /* Classify all instances */
         for (Instance inst : dataForClassification) {
             Object predictedClassValue = knn.classify(inst);
@@ -122,7 +122,7 @@ public class KNN {
 							ec.analizarImagen();
 							
 							//Formato
-							// [Aspect Ratio], [Factor Forma], [Rectangularidad], [Ratio Perimetro], [Especie]
+							// [Aspect Ratio], [Factor Forma], [Rectangularidad], [Ratio Perimetro],[NarrowFactor], [Especie]
 							String registro="";
 							registro += ec.getAspectRatio();
 							registro += ",";
@@ -132,8 +132,8 @@ public class KNN {
 							registro += ",";
 							registro += ec.getPerimRatio();
 							registro += ",";
-							//registro += ec.getCircularidad();
-							//registro += ",";
+							registro += ec.getNarrowFactor();
+							registro += ",";
 							//Grabo la especie a la que pertenece
 							registro += especie.getName();
 							

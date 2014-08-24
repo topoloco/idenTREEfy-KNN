@@ -50,3 +50,7 @@ $RECYCLE.BIN/
 *.msi
 *.msm
 *.msp
+
+#Dataset
+resources/dataset/
+resources/procesadas/

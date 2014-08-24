@@ -33,11 +33,9 @@ public class ExtraerCaracteristicas {
 	static CvScalar max = cvScalar(200, 200, 200, 0);// BGR-A
 	private BufferedImage imagen = null;
 	private BufferedImage imagenAnalizada = null;
-	private String especie;
-	private String nombre;
 
 	// Caracteristicas
-	private double smoothFactor = 0.0;// TODO no comprendou
+	private double smoothFactor = 0.0;
 	private double aspectRatio = 0.0;
 	private double factorForma = 0.0;
 	private double rectangularidad = 0.0;
@@ -52,22 +50,12 @@ public class ExtraerCaracteristicas {
 
 	public void analizarImagen() {
 		IplImage imageSrc = null;
-		// Cargo la imagen original
-		// imageSrc = cvLoadImage(this.pathImagen);
 
 		imageSrc = IplImage.createFrom(this.imagen);
 
 		Imagen imagen = new Imagen();
 		imagen.setImage(imageSrc);
 
-		// Cargo la imagen en escala de grises
-		// TODO
-		// image = imageSrc;
-		// cvConvertImage(imageSrc, image, CV_BGR2GRAY);
-		// image = cvLoadImage(this.pathImagen, CV_LOAD_IMAGE_GRAYSCALE);
-		// HoughLines hl = new HoughLines(image, "probabilistic");
-
-		// Convertir la imagen a blanco y negro binario aplicando thresholding
 		IplImage grayImage = cvCreateImage(cvGetSize(imageSrc), 8, 1);
 
 		// Aplico un filtro de suavizado para los bordes
@@ -170,7 +158,7 @@ public class ExtraerCaracteristicas {
 																				// diametros
 
 		// Caracteristicas computadas
-		smoothFactor = 0.0;// TODO no comprendou
+		smoothFactor = 0.0;// TODO ver como calcular esta caracteristica
 		aspectRatio = altoMaximo / anchoMaximo;
 		factorForma = (4 * Math.PI * area) / Math.pow(perimetro, 2);
 		rectangularidad = (anchoMaximo * altoMaximo) / area;

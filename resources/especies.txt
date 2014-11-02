@@ -1,7 +1,0 @@
-Fraxinus_Ornus,1
-Ginkgo_Biloba,2
-Liquidambar_Styraciflua,3
-Melia_Azedarach,4
-Platanus_Hispanica,5
-Quercus_Palustris,6
-Tilia_Cordata,7

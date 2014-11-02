@@ -15,6 +15,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import ExtraccionCaracteristicas.Histogram;
+
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 import reconocimiento.KNN;
@@ -25,8 +27,16 @@ public class Test {
 		
 		//Leo la imagen
     	IplImage imageSrc = null;
-    	imageSrc = cvLoadImage("resources/test.jpg");
+    	imageSrc = cvLoadImage("resources/recibida.jpg");
 
+    	Histogram hist = new Histogram();
+    	try {
+			hist.compareHist();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+    	
 		// Analizo imagen
 		System.out.println("Analizando...");
 		ExtraerCaracteristicas ec = new ExtraerCaracteristicas(imageSrc.getBufferedImage());
@@ -56,7 +66,7 @@ public class Test {
 		dataset.close();
 		
 		//Proceso el dataset
-		KNN.generarDataset();
+		//KNN.generarDataset();
 		
 		int idEspecie = 0;
 		String especie = null;
